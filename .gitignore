@@ -1,0 +1,5 @@
+.git
+config/*
+!config/default.example.js
+node_modules
+package-lock.json
