@@ -14,18 +14,21 @@ client.login(config.get('token'));
 let voiceChannel = null;
 let voiceConnection = null;
 let voiceChannelInterval = null;
+let textChannel = null;
 
 client.on('message', async message => {
-  const channelOwner = message.member.id == 181138121742745607;
+  const channelOwner = message.member.id == config.get('identification.channelOwnerID');
+
+  textChannel = await client.channels.fetch(config.get('identification.channelID'));
   
   if (channelOwner && message.member.voice.channel && message.content === 'разжечь камин') {
     voiceChannel = message.member.voice.channel;
     
-		await play(message);
+		await play();
   }
   
   if (voiceChannel && channelOwner && message.content === 'потушить камин') {
-    await stop(message);
+    await stop();
 	}
 });
 
@@ -41,7 +44,7 @@ async function play(message) {
 
   const randomFireplase = fireplaceLinks[Math.floor(Math.random() * fireplaceLinks.length)];
   
-  message.channel.send('*щёлк-щёлк*');
+  textChannel.send('*щёлк-щёлк*');
 
   voiceConnection = await voiceChannel.join();
 
@@ -50,7 +53,7 @@ async function play(message) {
   voiceChannelInterval = client.setInterval(checkForMembers, 10 * 60 * 1000);
 }
 
-async function checkForMembers(params) {
+async function checkForMembers() {
   const channelMembers = await voiceChannel.members.size;
   
   if (channelMembers == 1) {
@@ -60,12 +63,12 @@ async function checkForMembers(params) {
   }
 }
 
-async function stop(message) {
+async function stop() {
   await voiceConnection.disconnect();
   await voiceChannel.leave();
 
   voiceConnection = null;
   voiceChannel = null;
 
-  message.channel.send('*звуки затухающего огня*');
+  textChannel.send('*звуки затухающего огня*');
 }
